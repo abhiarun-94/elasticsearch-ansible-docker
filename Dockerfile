@@ -7,10 +7,20 @@ RUN apt update -y && apt-get install curl -y &&  \
     apt install default-jre -y && apt install default-jdk -y && \
     curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add - && \
     echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-7.x.list && \
-    apt update -y && apt install elasticsearch -y
+    apt update -y && apt install elasticsearch -y && \
+    find / -xdev -perm /6000 -type f -exec chmod a-s {} \; || true
 
 
- WORKDIR /usr/share/elasticsearch
+WORKDIR /usr/share/elasticsearch
+
+RUN adduser\
+    --disable-password\
+    django
+RUN chown -R django:django /usr/share/elasticsearch
+USER django
+
+
+
 
 RUN set -ex && for path in data logs config config/scripts; do \
         mkdir -p "$path"; \
